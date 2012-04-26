@@ -1,0 +1,1 @@
+This software is unmaintained. I provide no guarantees as to its fitness for any purpose. I will document it better and possibly ensure it is updated to support developments in Eve since its original development in the future.
