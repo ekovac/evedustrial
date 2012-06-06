@@ -1,30 +1,33 @@
 from . xml import EVECACHEPATH
 import time
-import os
+from os import path
 import urllib
-import sqlite3 as sqlite
+import MySQLdb as mysql
 from urllib2 import urlopen
-
 class EveDb(object):
     """
     This class is responsible for loading up an instance of the eve static
     dump information. Without this, most functionality of this library will
     not work. """
-    def __init__(self):
-        self.db = sqlite.connect(EVECACHEPATH+"/eve.db")
-        self.db.row_factory = sqlite.Row
-        if not self.db:
-            print "Failed to init database; all calls to EveDb will fail."
+    def __init__(self, database, user, passwd, host="localhost"):
+        self.db = mysql.connect(host=host, user=user, passwd=passwd, db=database)
+        
     def get_item_row(self, id):
-        c=self.db.cursor()
-        c.execute("select typeID,typeName,description,volume from invTypes where typeID == %d" % id)
-        itemrow = c.fetchone()
-        return itemrow
+        cur=self.db.cursor()
+        cols = ("typeID", "typeName", "description", "volume")
+        cur.execute("select "+ ",".join(cols) + " from invTypes where typeID = %s", (id,))
+        row = cur.fetchone()
+        row = dict(zip(cols, row))
+        print row
+        return row
     def get_location_row(self, id):
         return
     def get_location_by_string(self, id):
         return
     def get_item_by_string(self, txt):
-        c=self.db.cursor()
-        c.execute("select typeID,typeName,description,volume from invTypes where typeName GLOB '%s'" % txt)
-game_db=EveDb()
+        c = self.db.cursor()
+        c.execute("select typeName from invTypes where typeName GLOB '%s'", (txt,))
+        row = c.fetchone()
+        return row["typeName"]
+game_db=EveDb("eve", "eve", "eve")
+

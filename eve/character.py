@@ -10,14 +10,13 @@ EVE_INDUSTRY = EVE_BASE_URL + 'char/IndustryJobs.xml.aspx'
 EVE_ORDERS = EVE_BASE_URL + 'char/MarketOrders.xml.aspx'
 class EveAccount(EveXml):
     """ Contains character list; creates the EveCharacters, but does not refresh() them. """
-    def __init__(self, userid, apikey):
+    def __init__(self, key_id, vcode):
         super(EveAccount,self).__init__()
-        self.userid = userid
-        self.apikey = apikey
+        self.key_id = key_id
+        self.vcode = vcode
         self.characters = list()
         self.url = EVE_ACCOUNT
-        self.args = {'apikey':self.apikey,'userID':self.userid}
-    
+        self.args = {'keyID':self.key_id,'vCode':self.vcode}
     def parse_xml(self):
         super(EveAccount,self).parse_xml()
         xmlroot = self.xmlroot
@@ -30,7 +29,7 @@ class EveAccount(EveXml):
             newchar = EveCharacter(self, charid, charname, corpname)
             self.characters.append(newchar)
     def __str__(self):
-        result = "AccountID %s\n" % self.userid
+        result = "KeyID %s\n" % self.key_id
         result += "\n".join(map(str, self.characters))
         return result
 
@@ -46,8 +45,8 @@ class EveCharacter(EveXml):
         self.account = account
         self.charid = charid
         self.url = EVE_CHARSHEET
-        self.args = {'apiKey':account.apikey, 
-            'userID':account.userid, 'characterID':charid}
+        self.args = {'characterID':charid}
+        self.args.update(self.account.args)
     def parse_xml(self):
         super(EveCharacter,self).parse_xml()
         xmlroot = self.xmlroot

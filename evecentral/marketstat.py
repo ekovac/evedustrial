@@ -86,9 +86,11 @@ class MarketStatApi(object):
         if (len(typeids) < 2):
             typeids = (-1,) + tuple(typeids)
         oldthresh = time.time() - IS_OLD*60*60
-        c.execute("delete from marketstat where fetched < %f" % oldthresh) # Clear out stale entries.
+        c.execute("delete from marketstat where fetched < ?", (oldthresh,)) # Clear out stale entries.
         if not region:
-            c.execute("select * from marketstat where typeid in %s" % (str(tuple(typeids)),) )
+            print typeids
+            c.execute("select * from marketstat where typeid in (" + 
+                ",".join(("?",)*len(typeids)) + ")", tuple(typeids))
         else:
             c.execute("select * from marketstat where typeid in %s and region=%d" % (str(tuple(typeids)),region))
         a = c.fetchall()
