@@ -10,8 +10,4 @@ fox.refresh()
 assets = EveAssetList(fox)
 assets.refresh()
 ib = assets.get_item_bundle()
-print ib
-#print ib
-#for i in fox.skills:
-#    print i[0],i[2]
 print ib.get_bundle_price()

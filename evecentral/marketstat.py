@@ -1,4 +1,5 @@
 import sqlite3 as sqlite
+import sys
 from lxml import etree
 from urllib2 import urlopen
 from urllib import urlencode
@@ -88,11 +89,11 @@ class MarketStatApi(object):
         oldthresh = time.time() - IS_OLD*60*60
         c.execute("delete from marketstat where fetched < ?", (oldthresh,)) # Clear out stale entries.
         if not region:
-            print typeids
             c.execute("select * from marketstat where typeid in (" + 
                 ",".join(("?",)*len(typeids)) + ")", tuple(typeids))
         else:
-            c.execute("select * from marketstat where typeid in %s and region=%d" % (str(tuple(typeids)),region))
+            c.execute("select * from marketstat where region=? typeid in (" + 
+                ",".join(("?",)*len(typeids)) + ")", (region,)+tuple(typeids))
         a = c.fetchall()
         return dict_from_list(lambda i: i.typeid, map(lambda r: MarketStatEntry(r), a))
     def query_xml(self, typeids, region=None):
@@ -115,7 +116,7 @@ class MarketStatApi(object):
         cache_results = self.query_cache(requests, region)
         cache_hits=set(cache_results.keys())
         cache_misses=requests-cache_hits
-        print "Cache hits: %d\nCache Misses: %d" % (len(cache_hits), len(cache_misses))
+        sys.stderr.write("Cache hits: %d\nCache Misses: %d\n" % (len(cache_hits), len(cache_misses)))
         xml_results = dict()
         while cache_misses:
             newset = set()

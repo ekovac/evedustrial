@@ -18,7 +18,6 @@ class EveDb(object):
         cur.execute("select "+ ",".join(cols) + " from invTypes where typeID = %s", (id,))
         row = cur.fetchone()
         row = dict(zip(cols, row))
-        print row
         return row
     def get_location_row(self, id):
         return
